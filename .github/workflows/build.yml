@@ -1,9 +1,6 @@
 name: Build job
 
 on:
-  # Every Thursday at 17:30 UTC
-  schedule:
-    - cron: '30 17 * * 4'
   # Manual triggers
   workflow_dispatch:
     inputs:
@@ -26,14 +23,14 @@ jobs:
       - name: Clone Repository (Latest)
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          repository: 'mihonapp/mihon'
+          repository: 'raziel00/mihon'
           fetch-depth: 0
         if: github.event.inputs.git-ref == ''
       - name: Clone Repository (Custom Ref)
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         if: github.event.inputs.git-ref != ''
         with:
-          repository: 'mihonapp/mihon'
+          repository: 'raziel100/mihon'
           fetch-depth: 0
           ref: ${{ github.event.inputs.git-ref }}
 
@@ -47,7 +44,7 @@ jobs:
         uses: gradle/actions/setup-gradle@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0
 
       - name: Build APK
-        run: ./gradlew assemblePreview -Pinclude-telemetry -Penable-updater
+        run: ./gradlew assemblePreview
         env:
           storeFileBase64: ${{ secrets.SIGNING_KEY }}
           storePassword: ${{ secrets.KEY_STORE_PASSWORD }}
@@ -65,7 +62,7 @@ jobs:
           current_sha=$(git rev-parse --short HEAD)
           echo "CURRENT_SHA=$current_sha" >> $GITHUB_ENV
 
-          tag_name=$(gh release list --repo mihonapp/mihon-preview --exclude-drafts --exclude-pre-releases --json tagName --limit 1 --jq 'select(length > 0) | .[0].tagName')
+          tag_name=$(gh release list --repo raziel100/mihon-preview --exclude-drafts --exclude-pre-releases --json tagName --limit 1 --jq 'select(length > 0) | .[0].tagName')
           if [ -n "$tag_name" ]; then
             echo "Latest Tag: $tag_name"
           else
@@ -80,7 +77,7 @@ jobs:
 
           echo "COMMIT_LOGS<<{delimiter}
           $(curl -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/mihonapp/mihon/compare/$prev_release_sha...$current_sha" \
+            "https://api.github.com/repos/raziel100/mihon/compare/$prev_release_sha...$current_sha" \
             | jq '[.commits[]|{message:(.commit.message | split("\n")), username:.author.login}]' \
             | jq -r '.[]|"- \(.message | first) (@\(.username))"')
           {delimiter}" >> $GITHUB_ENV
@@ -103,7 +100,7 @@ jobs:
           body: |
             ### Commits
 
-            https://github.com/mihonapp/mihon/compare/${{ env.PREV_RELEASE_SHA }}...${{ env.CURRENT_SHA }}
+            https://github.com/raziel100/mihon/compare/${{ env.PREV_RELEASE_SHA }}...${{ env.CURRENT_SHA }}
 
             ${{ env.COMMIT_LOGS }}
 
