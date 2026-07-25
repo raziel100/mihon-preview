@@ -54,7 +54,7 @@ jobs:
 
       - name: Prepare changelog
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.MIHON_BOT_TOKEN }}
         run: |
           set -e
 
